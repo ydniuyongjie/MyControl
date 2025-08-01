@@ -1,4 +1,4 @@
-name: control
+name: niu_control
 channels:
   - pytorch
   - defaults
