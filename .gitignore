@@ -142,3 +142,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 training/
+.history/
+clip-vit-large-patch14/
