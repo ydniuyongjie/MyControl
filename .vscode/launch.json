@@ -3,14 +3,24 @@
     // 悬停以查看现有属性的描述。
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
-    "configurations": [
-
+    "configurations": [        
         {
             "name": "training",
             "type": "debugpy",
             "request": "launch",
             "program": "tutorial_train.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "add_control",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "tool_add_control.py",
+            "console": "integratedTerminal",
+            "args": [
+                "./models/v1-5-pruned.ckpt", // 第一个命令行参数
+                "./models/control_sd15_ini.ckpt"   // 第二个命令行参数
+            ],
         }
     ]
 }
