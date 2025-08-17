@@ -48,34 +48,34 @@ class ControlledUnetModel(UNetModel):
 class ControlNet(nn.Module):
     def __init__(
             self,
-            image_size,
-            in_channels,
-            model_channels,
-            hint_channels,
-            num_res_blocks,
-            attention_resolutions,
-            dropout=0,
-            channel_mult=(1, 2, 4, 8),
-            conv_resample=True,
-            dims=2,
-            use_checkpoint=False,
-            use_fp16=False,
-            num_heads=-1,
-            num_head_channels=-1,
-            num_heads_upsample=-1,
-            use_scale_shift_norm=False,
-            resblock_updown=False,
-            use_new_attention_order=False,
-            use_spatial_transformer=False,  # custom transformer support
-            transformer_depth=1,  # custom transformer support
-            context_dim=None,  # custom transformer support
-            n_embed=None,  # custom support for prediction of discrete ids into codebook of first stage vq model
-            legacy=True,
-            disable_self_attentions=None,
-            num_attention_blocks=None,
-            disable_middle_self_attn=False,
-            use_linear_in_transformer=False,
-    ):
+            image_size,              # 输入图像尺寸
+            in_channels,             # 输入通道数
+            model_channels,          # 模型基础通道数
+            hint_channels,           # 控制条件输入的通道数
+            num_res_blocks,          # 每个分辨率级别的残差块数量
+            attention_resolutions,   # 需要使用注意力机制的分辨率
+            dropout=0,               # Dropout比率
+            channel_mult=(1, 2, 4, 8), # 通道倍增因子
+            conv_resample=True,      # 是否在下采样时使用卷积
+            dims=2,                  # 卷积维度（2D）
+            use_checkpoint=False,    # 是否使用检查点节省内存
+            use_fp16=False,          # 是否使用半精度浮点数
+            num_heads=-1,            # 注意力头数量
+            num_head_channels=-1,    # 每个注意力头的通道数
+            num_heads_upsample=-1,   # 上采样时的注意力头数
+            use_scale_shift_norm=False, # 是否使用scale/shift归一化
+            resblock_updown=False,   # 是否使用残差块进行上/下采样
+            use_new_attention_order=False, # 注意力块中权重和归一化的顺序
+            use_spatial_transformer=False, # 是否使用空间变换器
+            transformer_depth=1,     # Transformer深度
+            context_dim=None,        # 上下文向量维度（用于交叉注意力）
+            n_embed=None,            # 用于离散ID预测的嵌入数
+            legacy=True,             # 是否使用旧版本注意力
+            disable_self_attentions=None, # 禁用自注意力的级别
+            num_attention_blocks=None,    # 每个级别的注意力块数
+            disable_middle_self_attn=False, # 是否禁用中间块的自注意力
+            use_linear_in_transformer=False, # Transformer中是否使用线性层
+        ):
         super().__init__()
         if use_spatial_transformer:
             assert context_dim is not None, 'Fool!! You forgot to include the dimension of your cross-attention conditioning...'

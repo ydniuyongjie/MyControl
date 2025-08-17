@@ -39,18 +39,18 @@ model:
       target: cldm.cldm.ControlledUnetModel
       params:
         image_size: 32 # unused
-        in_channels: 4
+        in_channels: 4 #输入通道数，值为4
         out_channels: 4
-        model_channels: 320
-        attention_resolutions: [ 4, 2, 1 ]
+        model_channels: 320 #模型基础通道数，值为320。这是UNet最开始的特征图通道数，后续层的通道数会基于此值和channel_mult参数进行缩放。
+        attention_resolutions: [ 4, 2, 1 ] #注意力机制应用的分辨率，值为[4, 2, 1]。这表示在UNet下采样4倍、2倍和1倍（即原图尺寸）时会应用注意力机制。
         num_res_blocks: 2
         channel_mult: [ 1, 2, 4, 4 ]
         num_heads: 8
         use_spatial_transformer: True
-        transformer_depth: 1
+        transformer_depth: 1 #这指定了每个SpatialTransformer块中BasicTransformerBlock的数量
         context_dim: 768
         use_checkpoint: True
-        legacy: False
+        legacy: False #是否使用旧版本，值为False。
 
     first_stage_config:
       target: ldm.models.autoencoder.AutoencoderKL
