@@ -55,16 +55,16 @@ model:
     first_stage_config:
       target: ldm.models.autoencoder.AutoencoderKL
       params:
-        embed_dim: 4
-        monitor: val/rec_loss
+        embed_dim: 4 #在Stable Diffusion中，图像被编码为4通道的潜在表示
+        monitor: val/rec_loss #监控指标，用于训练过程中监控验证集的重建损失
         ddconfig:
-          double_z: true
-          z_channels: 4
-          resolution: 256
-          in_channels: 3
-          out_ch: 3
-          ch: 128
-          ch_mult:
+          double_z: true  #使用变分自编码器（VAE）
+          z_channels: 4 # 潜在空间的通道数，与embed_dim保持一致，表示编码后的潜在向量有4个通道。
+          resolution: 256 # 输入图像的分辨率，值为256x256
+          in_channels: 3  # 输入图像的通道数，值为3
+          out_ch: 3 # 输出图像的通道数，值为3
+          ch: 128 # 潜在空间编码器的通道数，值为128
+          ch_mult: #通道倍增因子，控制网络在不同层级的通道数。值为[1, 2, 4, 8]，表示每经过一层，通道数会乘以相应的倍数。
           - 1
           - 2
           - 4

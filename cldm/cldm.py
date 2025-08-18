@@ -165,7 +165,7 @@ class ControlNet(nn.Module):
         self._feature_size = model_channels
         input_block_chans = [model_channels]
         ch = model_channels
-        ds = 1
+        ds = 1 #ds 是当前的下采样倍数
         for level, mult in enumerate(channel_mult):
             for nr in range(self.num_res_blocks[level]):
                 layers = [
@@ -307,31 +307,41 @@ class ControlNet(nn.Module):
 
 class ControlLDM(LatentDiffusion):
 
+    """
+    继承自LatentDiffusion的ControlLDM类，用于实现潜在扩散模型的控制功能。
+    通过控制模型来引导扩散过程，实现更精确的图像生成。
+    """
     def __init__(self, control_stage_config, control_key, only_mid_control, *args, **kwargs):
+        # 初始化函数，设置控制模型和相关参数
         super().__init__(*args, **kwargs)
-        self.control_model = instantiate_from_config(control_stage_config)
-        self.control_key = control_key
-        self.only_mid_control = only_mid_control
-        self.control_scales = [1.0] * 13
+        self.control_model = instantiate_from_config(control_stage_config)  # 实例化控制模型
+        self.control_key = control_key  # 控制数据的键名
+        self.only_mid_control = only_mid_control  # 是否仅使用中间层控制
+        self.control_scales = [1.0] * 13  # 控制尺度的列表，默认13个1.0
 
     @torch.no_grad()
     def get_input(self, batch, k, bs=None, *args, **kwargs):
-        x, c = super().get_input(batch, self.first_stage_key, *args, **kwargs)
-        control = batch[self.control_key]
+
+        # 获取输入数据并进行预处理
+        x, c = super().get_input(batch, self.first_stage_key, *args, **kwargs)  # 获取原始输入
+        control = batch[self.control_key]  # 获取控制数据
         if bs is not None:
-            control = control[:bs]
-        control = control.to(self.device)
-        control = einops.rearrange(control, 'b h w c -> b c h w')
-        control = control.to(memory_format=torch.contiguous_format).float()
-        return x, dict(c_crossattn=[c], c_concat=[control])
+            control = control[:bs]  # 如果指定了批次大小，则截取相应数量的数据
+        control = control.to(self.device)  # 将数据移动到指定设备
+        control = einops.rearrange(control, 'b h w c -> b c h w')  # 重排维度顺序
+        control = control.to(memory_format=torch.contiguous_format).float()  # 确保内存连续性并转为float类型
+        return x, dict(c_crossattn=[c], c_concat=[control])  # 返回处理后的输入和条件数据
 
     def apply_model(self, x_noisy, t, cond, *args, **kwargs):
-        assert isinstance(cond, dict)
-        diffusion_model = self.model.diffusion_model
+
+        # 应用模型进行前向传播
+        assert isinstance(cond, dict)  # 确保条件是字典类型
+        diffusion_model = self.model.diffusion_model  # 获取扩散模型
 
         cond_txt = torch.cat(cond['c_crossattn'], 1)
 
         if cond['c_concat'] is None:
+            # 如果没有拼接条件，直接使用文本条件进行预测
             eps = diffusion_model(x=x_noisy, timesteps=t, context=cond_txt, control=None, only_mid_control=self.only_mid_control)
         else:
             control = self.control_model(x=x_noisy, hint=torch.cat(cond['c_concat'], 1), timesteps=t, context=cond_txt)
